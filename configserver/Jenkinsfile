@@ -1,0 +1,52 @@
+node {
+
+    stage('Clone repository') {
+        
+       checkout scm
+
+        withMaven(options:[artifactsPublisher(disabled: true)],globalMavenSettingsConfig: 'a288a6e3-2534-4b38-b639-829d0d7c459b', maven: 'maven', mavenOpts: '-DskipTests=true') {
+  sh "mvn clean verify"}
+       
+    }
+    
+
+    
+    
+    pom = readMavenPom file: 'pom.xml'
+    VERSION= pom.version
+    fileName = "macellan.${VERSION}"
+    dockerfile = "/opt/docker/compose/docker-compose.yml"
+
+
+    
+      stage('Build & register') {
+
+          docker.withRegistry('https://dockerhub.ngss.io') {
+              def customImage = docker.build("macellanconfig:LTS")
+              customImage.push()
+
+          }
+      }
+    
+   
+
+          def remote = [:]
+          remote.name = 'testenv'
+          remote.host = '172.16.1.3'
+          remote.user = 'eymen'
+          remote.password = 'NGss1234!'
+          remote.allowAnyHosts = true
+          stage('Docker Configuration') {
+
+
+              stage('Pull Container on Test Server') {
+
+              sshCommand remote: remote, command: "docker pull dockerhub.ngss.io/macellanconfig:LTS"
+
+          }
+
+              stage('Rebuild Container') {
+              sshCommand remote: remote, command: "docker-compose -f ${dockerfile} up -d macellanconfig"
+          }
+      }
+     }
