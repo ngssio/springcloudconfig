@@ -3,10 +3,11 @@ node {
     stage('Clone repository') {
         
        checkout scm
+dir("configserver") {
 
         withMaven(options:[artifactsPublisher(disabled: true)],globalMavenSettingsConfig: 'a288a6e3-2534-4b38-b639-829d0d7c459b', maven: 'maven', mavenOpts: '-DskipTests=true') {
   sh "mvn clean verify"}
-       
+}
     }
     
 
@@ -20,11 +21,11 @@ node {
 
     
       stage('Build & register') {
-
+dir("configserver") {
           docker.withRegistry('https://dockerhub.ngss.io') {
               def customImage = docker.build("macellanconfig:LTS")
               customImage.push()
-
+          }
           }
       }
     
