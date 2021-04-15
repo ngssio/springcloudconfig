@@ -13,9 +13,7 @@ dir("configserver") {
 
     
     
-    pom = readMavenPom file: 'pom.xml'
-    VERSION= pom.version
-    fileName = "macellan.${VERSION}"
+
     dockerfile = "/opt/docker/compose/docker-compose.yml"
 
 
