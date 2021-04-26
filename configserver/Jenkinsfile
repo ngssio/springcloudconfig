@@ -10,7 +10,7 @@ dir("configserver") {
 }
     }
     
-    pom = readMavenPom file: 'pom.xml'
+    pom = readMavenPom file: 'configserver/pom.xml'
     VERSION= pom.version
     fileName = "macellanconfig:${VERSION}"
     
