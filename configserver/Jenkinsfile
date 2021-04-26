@@ -10,7 +10,9 @@ dir("configserver") {
 }
     }
     
-
+    pom = readMavenPom file: 'pom.xml'
+    VERSION= pom.version
+    fileName = "macellanconfig:${VERSION}"
     
     
 
@@ -21,31 +23,11 @@ dir("configserver") {
       stage('Build & register') {
 dir("configserver") {
           docker.withRegistry('https://dockerhub.ngss.io') {
-              def customImage = docker.build("macellanconfig:LTS")
+              def customImage = docker.build("${fileName}")
               customImage.push()
           }
           }
       }
     
-   
 
-          def remote = [:]
-          remote.name = 'testenv'
-          remote.host = '172.16.1.3'
-          remote.user = 'eymen'
-          remote.password = 'NGss1234!'
-          remote.allowAnyHosts = true
-          stage('Docker Configuration') {
-
-
-              stage('Pull Container on Test Server') {
-
-              sshCommand remote: remote, command: "docker pull dockerhub.ngss.io/macellanconfig:LTS"
-
-          }
-
-              stage('Rebuild Container') {
-              sshCommand remote: remote, command: "docker-compose -f ${dockerfile} up -d macellanconfig"
-          }
-      }
      }
